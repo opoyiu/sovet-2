@@ -91,17 +91,17 @@
 }
 
 .bloc[data-img="1"] {
-    background-image: url(../public/Frame\ 10\(1\).svg);
+    background-image: url(../public/news-1-2.svg);
     height: 114px;
 }
 
 .bloc[data-img="2"] {
-    background-image: url(../public/Frame\-13.svg);
+    background-image: url(../public/news-2-2.svg);
     height: 162px;
 }
 
 .bloc[data-img="3"] {
-    background-image: url(../public/Frame\ 17.svg);
+    background-image: url(../public/news-3-2.svg);
     height: 162px;
 }
 

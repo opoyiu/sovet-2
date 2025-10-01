@@ -14,32 +14,147 @@
     <link rel="stylesheet" href="../style/Bloc-2.css">
 </head>
 
+<script>
+    async function getBanners() {
+        try {
+            const response = await fetch('https://terlynedev.space/api/banners');
+            if (!response.ok) {
+                throw new Error('Ошибка сети');
+            }
+            const carouselSlides = document.querySelector('.carousel-slides');
+            const data = await response.json();
+            data.forEach(banner => {
+                const slide = document.createElement('div');
+                slide.className = 'carousel-slide';
+                slide.innerHTML = `
+                    <a href="${banner.redirect_url}"><img src="https://terlynedev.space/api/files/${encodeURI(banner.image_url)}/" alt="Banner"></a>`;
+                carouselSlides.appendChild(slide);
+            });
+            
+            // Инициализируем карусель после загрузки всех слайдов
+            if (typeof window.initCarousel === 'function') {
+                window.initCarousel();
+            }
+        
+    } catch (error) {
+        console.error('Возникла ошибка при загрузке слайдов:', error);
+    }
+    }
+
+    async function getProjects() {
+        try {
+            const response = await fetch ('https://terlynedev.space/api/projects');
+            if (!response.ok) {
+                throw new Error('Ошибка сети');
+            }
+            const projectBody = document.querySelector('.project-body');
+            const data = await response.json();
+            data.forEach(project => {
+                const card = document.createElement('div');
+                card.className = 'project-card';
+                card.innerHTML = `
+                    <p class="project-title">${project.title}</p>
+                    <div class="project-card-down">
+                        <p class="project-text"
+                            data-full-text="${project.body}"
+                            onclick="toggleText(this)">
+                            ${project.body.length > 100 ? project.body.substring(0, 100) + '...' : project.body}
+                        </p>
+                        <a href="${project.redirect_url}" class="project-body-button">
+                            <p>Подробнее</p>
+                        </a>
+                    </div>
+                `;
+                projectBody.appendChild(card);
+            });
+        }
+    
+    catch (error) {
+        console.error('Возникла ошибка при загрузке проектов:', error);
+    }
+    
+    }
+
+    async function getNews() {
+        try {
+            const response = await fetch('https://terlynedev.space/api/news');
+            if (!response.ok) {
+                throw new Error('Ошибка сети');
+            }
+            // получаем контейнер для новостей
+            const newsContainer = document.querySelector('.NOV .KAR-NOV');
+            newsContainer.innerHTML = ''; 
+            const data = await response.json();
+            // для каждой новости создаем карточку
+            data.forEach(newsItem => {
+                const newsCard = document.createElement('div');
+                newsCard.className = 'Bloc-b';
+                newsCard.innerHTML = `
+                    <img src="https://terlynedev.space/api/files/${encodeURI(newsItem.image_url)}/" draggable="false">
+                    <div class="text">
+                        <p>${new Date(newsItem.news_date).toLocaleDateString()}</p>
+                        <h2>${newsItem.title}</h2>
+                        <p class="p2">${newsItem.min_text}</p>
+                    </div>
+                    <a href="${newsItem.redirect_url}">
+                        <button>
+                            <p class="p1">Читать полностью</p>
+                        </button>
+                    </a>
+                `;
+                newsContainer.appendChild(newsCard);
+            });
+        } catch (error) {
+            console.error('Возникла ошибка при загрузке новостей:', error);
+    }}
+
+    function submitFeedback() {
+        const firstName = document.getElementById('fb-firstname').value;
+        const middleName = document.getElementById('fb-middlename').value;
+        const lastName = document.getElementById('fb-lastname').value;
+        const email = document.getElementById('fb-email').value;
+        const message = document.getElementById('fb-message').value;
+        const feedbackData = {
+            first_name: firstName,
+            middle_name: middleName,
+            last_name: lastName,
+            email: email,
+            message: message
+        };
+        fetch('https://terlynedev.space/api/feedbacks', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(feedbackData)
+        })
+        .then(response => {
+            if (response.ok) {
+                alert('Спасибо за ваш отзыв!');
+                document.getElementById('fb-firstname').value = '';
+                document.getElementById('fb-middlename').value = '';
+                document.getElementById('fb-lastname').value = '';
+                document.getElementById('fb-email').value = '';
+                document.getElementById('fb-message').value = '';
+            } else {
+                throw new Error('Ошибка сети');
+            }
+        })
+        .catch(error => {
+            console.error('Возникла ошибка при отправке формы обратной связи:', error);
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', getBanners);
+    document.addEventListener('DOMContentLoaded', getProjects);
+    document.addEventListener('DOMContentLoaded', getNews);
+</script>
+
 <body>
     <div id="header"></div>
     <section class="carousel-container">
         <div class="carousel-slides">
-            <div class="carousel-slide active">
-                <img src="../public/glavnaya.svg" alt="Slide 1">
-                <div class="text-overlay">
-                    <div class="text-block1">Совет родительской<br>общественности Москвы</div>
-                    <div class="text-block2">Поддержка родительских объединений и управляющих<br>советов школ. Полезная и актуальная информация<br>для родителей Москвы.</div>
-                </div>
-            </div>
-            <div class="carousel-slide">
-                <img src="../public/glushka.svg" alt="Slide 2">
-            </div>
-            <div class="carousel-slide">
-                <img src="../public/glushka.svg" alt="Slide 3">
-            </div>
-            <div class="carousel-slide">
-                <img src="../public/glushka.svg" alt="Slide 4">
-            </div>
-            <div class="carousel-slide">
-                <img src="../public/glushka.svg" alt="Slide 5">
-            </div>
-            <div class="carousel-slide">
-                <img src="../public/glushka.svg" alt="Slide 6">
-            </div>
+            <!-- Слайды будут добавлены здесь динамически -->
         </div>
         <button class="carousel-btn prev-btn">
             <img src="../public/Arrow-Left.svg" alt="Previous" class="arrow-icon">
@@ -59,93 +174,7 @@
             </a>
         </div>
         <div class="project-body">
-            <div class="project-card">
-                <p class="project-title">Московские мастера</p>
-                <div class="project-card-down">
-                    <p class="project-text"
-                        data-full-text="Заммэра Ракова: Столичные школьники и студенты колледжей отправились в Большую арктическую экспедицию."
-                        onclick="toggleText(this)">
-                        Заммэра Ракова: Столичные школьники и студенты колледжей отправились в Большую арктическую экспедицию
-                    </p>
-                    <a href="https://kp11.mskobr.ru/edu-news/7366" class="project-body-button">
-                        <p>Подробнее</p>
-                    </a>
-                </div>
-            </div>
-            <div class="project-card">
-                <p class="project-title">Московский детский чемпионат «Мастерята»</p>
-                <div class="project-card-down">
-                    <p class="project-text"
-                        data-full-text="«Мастерята» — ежегодный московский чемпионат профессионального мастерства среди школьников 1-8ых классов, на котором проверяются и формируются актуальные знания и умения участников."
-                        onclick="toggleText(this)">
-                        «Мастерята» — ежегодный московский чемпионат профессиональног...
-                    </p>
-                    <a href="https://kid.mcrpo.ru/" class="project-body-button">
-                        <p>Подробнее</p>
-                    </a>
-                </div>
-            </div>
-            <div class="project-card">
-                <p class="project-title">Билет в будущее</p>
-                <div class="project-card-down">
-                    <p class="project-text"
-                        data-full-text="«Билет в будущее» — это проект для учеников 6-11 классов, который помогает разобраться в мире профессий и сделать осознанный выбор будущей карьеры."
-                        onclick="toggleText(this)">
-                        Билет в будущее» — это проект для учеников 6-11 классов...
-                    </p>
-                    <a href="https://bvbinfo.ru/" class="project-body-button">
-                        <p>Подробнее</p>
-                    </a>
-                </div>
-            </div>
-            <div class="project-card">
-                <p class="project-title">Профессиональное обучение без границ</p>
-                <div class="project-card-down">
-                    <p class="project-text"
-                        data-full-text="«Профессиональное обучение без границ» — это бесплатная подготовка по профессиям рабочих и служащих. Обучение проходит в образовательных организациях."
-                        onclick="toggleText(this)">
-                        Профессиональное обучение без границ» — это бесплатная...
-                    </p>
-                    <a href="https://www.mos.ru/pgu2/landing/prof-education/" class="project-body-button">
-                        <p>Подробнее</p>
-                    </a>
-                </div>
-            </div>
-            <div class="project-card">
-                <p class="project-title">Отбор Амбассадоров профессий</p>
-                <div class="project-card-down">
-                    <p class="project-text"
-                        data-full-text="Отбор на программы Амбассадоров профессий - поиск инициативных студентов с навыками публичных выступлений, командной работы и лояльностью к своему учебному заведению или бренду."
-                        onclick="toggleText(this)">
-                        Отбор на программы Амбассадоров профессий - поиск...
-                    </p>
-                    <a href="https://firpo.ru/activities/projects/proyekt-ambassadory-professionaliteta/" class="project-body-button">
-                        <p>Подробнее</p>
-                    </a>
-                </div>
-            </div>
-            <div class="project-card">
-                <p class="project-title">Абилимпикс</p>
-                <div class="project-card-down">
-                    <p class="project-text"
-                        data-full-text="«Абилимпикс» – это некоммерческое движение, основной деятельностью которого является проведение конкурсов профессионального мастерства среди инвалидов и лиц ограниченными возможностями здоровья."
-                        onclick="toggleText(this)">
-                        Абилимпикс» – это некоммерческое движение, основной деятельностью которого является...
-                    </p>
-                    <a href="https://abilympics-russia.ru/about/movement/" class="project-body-button">
-                        <p>Подробнее</p>
-                    </a>
-                </div>
-            </div>
-            <div class="project-card">
-                <p class="zaglushka">В ближайшее время тут появится красота</p>
-            </div>
-            <div class="project-card">
-                <p class="zaglushka">В ближайшее время тут появится красота</p>
-            </div>
-            <div class="project-card">
-                <p class="zaglushka">В ближайшее время тут появится красота</p>
-            </div>
+            <!-- Проектные карточки будут добавлены здесь динамически -->
         </div>
     </section>
 
@@ -261,11 +290,12 @@
                     <h1 class="text-1-1">Обратная связь</h1>
                     <p class="text-1-2">Если не нашел ответ, задай свой вопрос</p>
                 </div>
-                <input type="text" maxlength="100" placeholder="Имя" class="polaya">
-                <input type="text" maxlength="100" placeholder="+7 999 999 99 99" class="polaya">
-                <input type="text" maxlength="100" placeholder="Адрес электронной почты" class="polaya">
-                <textarea type="text" maxlength="250" placeholder="Текст сообщения" class="polaya"></textarea>
-                <a href="" class="button-1"><p>Отправить</p></a>
+                <input id="fb-firstname" type="text" maxlength="100" placeholder="Имя" class="polaya">
+                <input id="fb-middlename" type="text" maxlength="100" placeholder="Отчество" class="polaya">
+                <input id="fb-lastname" type="text" maxlength="100" placeholder="Фамилия" class="polaya">
+                <input id="fb-email" type="text" maxlength="100" placeholder="Адрес электронной почты" class="polaya">
+                <textarea id="fb-message" type="text" maxlength="250" placeholder="Текст сообщения" class="polaya"></textarea>
+                <button onclick="submitFeedback()" class="button-1"><p>Отправить</p></button>
             </div>
             <div class="red-plash-1">
                 <div class="text-plash-1-2">
@@ -289,3 +319,4 @@
 </body>
 
 </html>
+    
